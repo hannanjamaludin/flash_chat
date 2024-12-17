@@ -1,14 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatefulWidget {
-    static const String id = 'chat_screen';
+  static const String id = 'chat_screen';
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _auth = FirebaseAuth.instance;
+
+  User? loggedInUser;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser; // currentUser() has been deprecated
+
+      if (user != null) {
+        loggedInUser = user;
+        print(loggedInUser!
+            .email); // need to tell dart that loggedin user is not null at this point
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +43,8 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                //Implement logout functionality
+                _auth.signOut();
+                Navigator.pop(context);
               }),
         ],
         title: Text('⚡️Chat'),
@@ -43,9 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      //Implement send functionality.
-                    },
+                    onPressed: () {},
                     child: Text(
                       'Send',
                       style: kSendButtonTextStyle,
